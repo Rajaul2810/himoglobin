@@ -476,6 +476,54 @@ const deleteNews = async (id: any) => {
     }
   }
 
+  ///api/user/getOfficialLeaders
+  const getOfficialLeaders = async () => {
+    try {
+      const response = await api.get(`/user/getOfficialLeaders`);
+      return response.data;
+    } catch (error: any) {  
+      if(error?.status === 404) {
+        return []
+      }
+      throw error;
+    }
+  }
+
+  ///api/user/getScoutLeaders
+  const getScoutLeaders = async (pageNo: any, pageSize: any) => {
+    try {
+      const response = await api.get(`/user/getScoutLeaders?pageNo=${pageNo}&pageSize=${pageSize}`);
+      return response.data;
+    } catch (error: any) {
+      if(error?.status === 404) {
+        return []
+      }
+      throw error;
+    }
+  }
+
+  ///api/user/donorRegistration
+  const donorRegistration = async (data: any) => {
+    try {
+      const response = await api.post(`/user/donorRegistration`, data);
+      return response.data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  ///api/user/getPermittedDonors
+  const getPermittedDonors = async (pageNo: any, pageSize: any) => {
+    try {
+      const response = await api.get(`/user/getPermittedDonors?pageNo=${pageNo}&pageSize=${pageSize}`);
+      return response.data;
+    } catch (error: any) {
+      if(error?.status === 404) {
+        return []
+      }
+      throw error;
+    }
+  }
   export default { 
     register,
     getLocationByParentId,
@@ -513,5 +561,9 @@ const deleteNews = async (id: any) => {
     getUnapprovedDonor,
     getApprovedDonor,
     getAllAdmin,
-    getVolunteerPermittedCampaigns
+    getVolunteerPermittedCampaigns,
+    getOfficialLeaders,
+    getScoutLeaders,
+    donorRegistration,
+    getPermittedDonors
 };

@@ -20,7 +20,7 @@ const ApplyVolunteerCard = () => {
 
         <TouchableOpacity onPress={() => router.push({
           pathname: "/user/form",
-          params: { rule: "Volunteer" }
+          params: { rules: "leader" }
         })} style={styles.button}>
           <ThemedText style={styles.buttonText}>Apply Now</ThemedText>
         </TouchableOpacity>

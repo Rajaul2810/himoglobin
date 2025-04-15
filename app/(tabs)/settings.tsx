@@ -11,9 +11,6 @@ import { useShallow } from "zustand/react/shallow";
 import { getUserType } from "@/hooks/authUtils";
 const Settings = () => {
   const router = useRouter();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isVolunteer, setIsVolunteer] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   // Properly extract values from the auth store
   const { logout, user, token } = useAuthStore(
@@ -23,32 +20,22 @@ const Settings = () => {
       token: state.token
     }))
   );
-
   const userTypeInfo = getUserType();
   const id = userTypeInfo?.id;
+  const userType = userTypeInfo?.userType;
+  // Derive user type directly from the current state
+  const isLoggedIn = !!token && !!user;
+  const isAdmin = isLoggedIn && userType === "Admin";
+  const isVolunteer = isLoggedIn && userType === "Volunteer";
+
+
   
-  // Handle logout with state updates
+  // Handle logout with proper cleanup
   const handleLogout = () => {
     logout();
-    // Reset all auth-related states
-    setIsAdmin(false);
-    setIsVolunteer(false);
-    setIsLoggedIn(false);
+    // No need to set state variables as they're derived from auth store
+    router.replace("/");
   };
-  
-  useEffect(() => {
-    // Check user type and token to set appropriate states
-    if (user && token) {
-      setIsLoggedIn(true);
-      setIsAdmin(user.userType === "Admin");
-      setIsVolunteer(user.userType === "Volunteer");
-    } else {
-      setIsLoggedIn(false);
-      setIsAdmin(false);
-      setIsVolunteer(false);
-    }
-  }, [user, token]);
-  
   
   const authSettings = [
     {

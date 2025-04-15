@@ -30,7 +30,8 @@ const PermittedCampaign = () => {
 
     const {data, isLoading, error, refetch} = useQuery({
         queryKey: ['permittedCampaign', pageNo, pageSize],
-        queryFn: () => apiServices.getVolunteerPermittedCampaigns(pageNo, pageSize)
+        queryFn: () => apiServices.getVolunteerPermittedCampaigns(pageNo, pageSize),
+        refetchOnReconnect: true,
     })
 
     if(isLoading) return <LoadingComponent />
@@ -82,14 +83,14 @@ const PermittedCampaign = () => {
                     <ThemedText numberOfLines={1} ellipsizeMode="tail">{item.institute || 'No Institution'}</ThemedText>
                     <View style={styles.dateContainer}>
                       <ThemedText style={styles.dateText}>
-                        Start: {new Date(item.startDate).toLocaleDateString()}
+                        Start: {item.startDate.split('T')[0]}
                       </ThemedText>
-                      <ThemedText style={styles.dateText}>End: {new Date(item.endDate).toLocaleDateString()}</ThemedText>
+                      <ThemedText style={styles.dateText}>End: {item.endDate.split('T')[0]}</ThemedText>
                     </View>
                   </View>
                 </View>
                 <View style={styles.actionContainer}>
-                    <TouchableOpacity onPress={() => router.push({pathname: '/user/form'})} style={styles.actionButton}>
+                    <TouchableOpacity onPress={() => router.push({pathname: '/volunteers/add-donor', params: {id: item.id}})} style={styles.actionButton}>
                         <Text style={styles.actionButtonText}>Add Donor</Text>
                     </TouchableOpacity>
                 </View>
