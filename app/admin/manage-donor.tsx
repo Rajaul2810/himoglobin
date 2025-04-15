@@ -22,6 +22,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import apiServices from "@/utils/apiServices";
 import UserCard from "@/components/User/UserCard";
+import { Stack } from "expo-router";
 
 const bloodGroups = [
   { label: "A+", value: "A+" },
@@ -40,7 +41,7 @@ const genderOptions = [
   { label: "Other", value: "other" },
 ];
 
-const Explore = () => {
+const ManageDonor = () => {
   const colorScheme = useColorScheme();
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [selectedBloodGroup, setSelectedBloodGroup] = useState({label: '', value: ''});
@@ -61,6 +62,9 @@ const Explore = () => {
   const [isEndReached, setIsEndReached] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [upazilaId, setUpazilaId] = useState(null);
+  const [isApproved, setIsApproved] = useState(false);
+  const [userType, setUserType] = useState(null);
+  const [activeTab, setActiveTab] = useState('pending');
 
   const filters = {
     bloodGroup: selectedBloodGroup?.value ? selectedBloodGroup.value : null,
@@ -69,11 +73,19 @@ const Explore = () => {
     gender: selectedGender?.value ? selectedGender.value : null,
     startAge: startAge ? parseInt(startAge) : null,
     endAge: endAge ? parseInt(endAge) : null,
+    isApproved: isApproved,
+    userType: userType ? userType : null,
   }
 
-  // Query to fetch donors based on filters
+  // Query to fetch donors based on filters and approval status
   const { mutate: fetchDonors, isPending: isDonorsLoading } = useMutation({
-    mutationFn: () => apiServices.getBloodBankData({pageNo, pageSize, ...filters}),
+    mutationFn: () => {
+      if (activeTab === 'approved') {
+        return apiServices.getApprovedDonor({pageNo, pageSize, ...filters});
+      } else {
+        return apiServices.getUnapprovedDonor({pageNo, pageSize, ...filters});
+      }
+    },
     onSuccess: (data) => {
       if (pageNo === 1) {
         setDonors(data?.data || []);
@@ -92,7 +104,7 @@ const Explore = () => {
   // Effect to fetch donors when filters or pagination changes
   useEffect(() => {
     fetchDonors();
-  }, [pageNo, selectedBloodGroup, selectedUpazila, selectedUnion, selectedGender, startAge, endAge]);
+  }, [pageNo, selectedBloodGroup, selectedUpazila, selectedUnion, selectedGender, startAge, endAge, activeTab]);
 
   // Query to fetch location data for dropdowns
   const { data: locationData, isLoading: isLocationLoading } = useQuery({
@@ -158,8 +170,59 @@ const Explore = () => {
     setUpazilaId(null);
   }, []);
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setIsApproved(tab === 'approved');
+    setPageNo(1);
+    setDonors([]);
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+      <>
+    <Stack.Screen options={{headerTitle: "Manage Donor"}} />
+    <View style={{ flex: 1 }}>
+      {/* Status Tab Buttons */}
+      <ThemedView style={styles.tabContainer}>
+        <TouchableOpacity 
+          style={[
+            styles.tabButton, 
+            activeTab === 'pending' && styles.activeTabButton,
+            { backgroundColor: activeTab === 'pending' ? 
+              (colorScheme === "dark" ? Colors.dark.tint : Colors.light.tint) : 
+              (colorScheme === "dark" ? Colors.dark.background : Colors.light.background) }
+          ]}
+          onPress={() => handleTabChange('pending')}
+        >
+          <ThemedText 
+            style={[
+              styles.tabButtonText, 
+              activeTab === 'pending' && { color: colorScheme === "dark" ? Colors.dark.background : Colors.light.background }
+            ]}
+          >
+            Pending
+          </ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[
+            styles.tabButton, 
+            activeTab === 'approved' && styles.activeTabButton,
+            { backgroundColor: activeTab === 'approved' ? 
+              (colorScheme === "dark" ? Colors.dark.tint : Colors.light.tint) : 
+              (colorScheme === "dark" ? Colors.dark.background : Colors.light.background) }
+          ]}
+          onPress={() => handleTabChange('approved')}
+        >
+          <ThemedText 
+            style={[
+              styles.tabButtonText, 
+              activeTab === 'approved' && { color: colorScheme === "dark" ? Colors.dark.background : Colors.light.background }
+            ]}
+          >
+            Approved
+          </ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+
       <ThemedView style={styles.filterContainer}>
         <View style={styles.bloodGroupContainer}>
           <Dropdown
@@ -474,13 +537,37 @@ const Explore = () => {
           />
         )}
       </View>
-    </SafeAreaView>
+    </View>
+    </>
   );
 };
 
-export default Explore;
+export default ManageDonor;
 
 const styles = StyleSheet.create({
+  tabContainer: {
+    flexDirection: "row",
+    marginHorizontal: 10,
+    marginTop: 10,
+    marginBottom: 5,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  tabButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  activeTabButton: {
+    borderColor: "transparent",
+  },
+  tabButtonText: {
+    fontWeight: "600",
+    fontSize: 16,
+  },
   filterContainer: {
     flexDirection: "row",
     paddingHorizontal: 10,
