@@ -30,15 +30,13 @@ const AddDonor  = () => {
     District: '1',
     Upazila: '',
     Union: '',
-    UserType: '',
+    UserType: 'Donor',
     BloodDonationStatus: '',
     Gender: '',
     BloodGroup: '',
     PhysicalComplexity: 'No',
     ProfilePicture: null as string | null,
     Nid: [] as string[],
-    LeaderType: '',
-    InstituteName:''
   })
 
   type ErrorType = {
@@ -51,8 +49,6 @@ const AddDonor  = () => {
     Gender?: string;
     BloodDonationStatus?: string;
     BloodGroup?: string;
-    LeaderType?: string;
-    InstituteName?: string;
     FatherName?: string;
     MotherName?: string;
     DateOfBirth?: string;
@@ -75,7 +71,7 @@ const AddDonor  = () => {
     return [{label: 'Donor', value: 'Donor'}];
   }, [])
   
-  const LeaderTypes = useMemo(() => [{label: 'DC Office', value: 'DcOffic'},{label: 'Civil Surgeon Office', value: 'CivilOffice'}, {label: 'Volunteer (Scout)', value: 'Scouts'}], [])
+ 
   const genders = useMemo(() => [{label: 'Male', value: 'Male'}, {label: 'Female', value: 'Female'}, {label: 'Other', value: 'Other'}], [])
   const bloodGroups = useMemo(() => ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map(value => ({label: value, value})), [])
   const donationStatus = useMemo(() => [{label: 'Interested', value: 'Interested'}, {label: 'Not Interested', value: 'Not Interested'}, {label: 'Not Sure', value: 'Not Sure'}], [])
@@ -131,8 +127,6 @@ const AddDonor  = () => {
     if (!formData.Gender) newErrors.Gender = 'Gender is required'
     if (!formData.BloodDonationStatus) newErrors.BloodDonationStatus = 'Blood donation status is required'
     if (!formData.BloodGroup) newErrors.BloodGroup = 'Blood group is required'
-    if (formData.UserType === 'Volunteer' && !formData.LeaderType) newErrors.LeaderType = 'Leader type is required'
-    if (formData.UserType === 'Volunteer' || formData.UserType === 'Admin' && !formData.InstituteName) newErrors.InstituteName = 'Institute name is required'
     if (!formData.FatherName) newErrors.FatherName = 'Father name is required'
     if (!formData.MotherName) newErrors.MotherName = 'Mother name is required'
     if (!formData.DateOfBirth) newErrors.DateOfBirth = 'Date of birth is required'
@@ -191,7 +185,7 @@ const AddDonor  = () => {
     }
   }, [formData.Upazila])
 
-  const {mutate: register, isPending} = useMutation({
+  const {mutate: DonorRegister, isPending} = useMutation({
     mutationFn: (data: any) => {
       const formDataToSend = new FormData();
       
@@ -233,8 +227,12 @@ const AddDonor  = () => {
       return apiServices.donorRegistration(formDataToSend);
     },
     onSuccess: (data) => {
-      Alert.alert('Success', 'Donor added successfully!');
-      router.push('/volunteers/donor-list');
+      if(data?.data?.isSuccess){
+        Alert.alert('Success', 'Donor added successfully!');
+        router.push('/volunteers/donor-list');
+      }else{
+        Alert.alert('Error', data?.data?.message);
+      }
     },
     onError: (error) => {
       console.log(error);
@@ -253,9 +251,10 @@ const AddDonor  = () => {
         // Format dates with UTC to prevent timezone offset issues
         DateOfBirth: `${dobDate.getFullYear()}-${String(dobDate.getMonth() + 1).padStart(2, '0')}-${String(dobDate.getDate()).padStart(2, '0')}`,
         LastDonationTime: `${lastDonationDate.getFullYear()}-${String(lastDonationDate.getMonth() + 1).padStart(2, '0')}-${String(lastDonationDate.getDate()).padStart(2, '0')}`,
+        CampaignId: id
       }
-      console.log(formattedData);
-      register(formattedData);
+      console.log('formattedData', formattedData);
+      DonorRegister(formattedData);
     }
   }
 
@@ -288,24 +287,6 @@ const AddDonor  = () => {
             />
             {errors.UserType && <Text style={styles.errorText}>{errors.UserType}</Text>}
           </View>
-          {formData.UserType === 'Volunteer' && (
-          <View style={styles.inputContainer}>
-            <ThemedText style={styles.label}>Leader Type *</ThemedText>
-            <Dropdown
-              data={LeaderTypes}
-              placeholder="Select Leader Type"
-              labelField="label"
-              valueField="value"
-              value={formData.LeaderType}
-              onChange={item => setFormData({...formData, LeaderType: item.value})}
-              style={[styles.dropdown, errors.LeaderType && styles.errorInput, isDark && styles.darkDropdown]}
-              placeholderStyle={isDark ? styles.darkPlaceholderText : {}}
-              selectedTextStyle={isDark ? styles.darkText : {}}
-              activeColor={isDark ? '#333' : undefined}
-            />
-            {errors.LeaderType && <Text style={styles.errorText}>{errors.LeaderType}</Text>}
-          </View>
-          )}
 
           <View style={styles.inputContainer}>
             <ThemedText style={styles.label}>Full Name *</ThemedText>
@@ -476,20 +457,7 @@ const AddDonor  = () => {
             />
           </View>
 
-          {formData.UserType === 'Volunteer' || formData.UserType === 'Admin' && (
-          <View style={styles.inputContainer}>
-            <ThemedText style={styles.label}>Institute Name *</ThemedText>
-            <TextInput
-              style={[styles.input, isDark && styles.darkInput]}  
-              placeholder="Enter your institute name"
-              placeholderTextColor={isDark ? '#999' : '#777'}
-              value={formData.InstituteName}
-              onChangeText={(text) => setFormData({...formData, InstituteName: text})}
-            />
-            {errors.InstituteName && <Text style={styles.errorText}>{errors.InstituteName}</Text>}
-          </View>
-
-          )}
+         
 
           <View style={styles.inputContainer}>
             <ThemedText style={styles.label}>Blood Group *</ThemedText>

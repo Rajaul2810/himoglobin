@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, ScrollView, Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import { Colors } from '@/constants/Colors'
 import { IconSymbol } from '@/components/ui/IconSymbol'
@@ -9,53 +9,103 @@ import { ThemedView } from '@/components/ThemedView'
 import * as ImagePicker from 'expo-image-picker'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Stack } from 'expo-router'
+import useAuthStore from '@/store/authStore'
+import { useShallow } from 'zustand/react/shallow'
+import axios from 'axios'
+import apiServices from '@/utils/apiServices'
+import { useQuery } from '@tanstack/react-query'
+
+
 const UserUpdate = () => {
+  const { logout, user, token, updateUser } = useAuthStore(
+    useShallow((state: any) => ({
+      logout: state.logout,
+      user: state.user,
+      token: state.token,
+      updateUser: state.updateUser
+    }))
+  );
+  
   const [formData, setFormData] = useState({
-    fullName: '',
-    fatherName: '',
-    motherName: '',
-    dateOfBirth: new Date(),
-    lastDonationTime: new Date(),
-    contact: '',
-    bloodDonationCount: '',
-    address: '',
-    district: 'Nilphamari',
-    upazila: '',
-    union: '',
-    userType: '',
-    bloodDonationStatus: '',
-    gender: '',
-    bloodGroup: '',
-    physicalComplexity: '',
+    fullName: user?.fullName || '',
+    fatherName: user?.fatherName || '',
+    motherName: user?.motherName || '',
+    dateOfBirth: user?.dateOfBirth ? new Date(user.dateOfBirth) : new Date(),
+    lastDonationTime: user?.lastDonationTime ? new Date(user.lastDonationTime) : new Date(),
+    contact: user?.contact || '',
+    bloodDonationCount: user?.bloodDonationCount || '',
+    address: user?.address || '',
+    district: user?.district || '',
+    Upazila: user?.Upazila || '',
+    Union: user?.Union || '',
+    userType: user?.userType || '',
+    bloodDonationStatus: user?.bloodDonationStatus || '',
+    gender: user?.gender || '',
+    bloodGroup: user?.bloodGroup || '',
+    physicalComplexity: user?.physicalComplexity || '',
     profilePicture: null as string | null,
     nid: null as string | null,
-    
   })
-
-  type ErrorType = {
-    fullName?: string;
-    contact?: string;
-    district?: string;
-    upazila?: string;
-    union?: string;
-    userType?: string;
-    gender?: string;
-    bloodDonationStatus?: string;
-  }
-
+  
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [datePickerType, setDatePickerType] = useState('dob')
-  const [errors, setErrors] = useState<ErrorType>({})
-
+  const [loading, setLoading] = useState(false)
+  const [upazilas, setUpazilas] = useState<{label: string, value: any}[]>([])
+  const [unions, setUnions] = useState<{label: string, value: any}[]>([])
+  const [selectedUpazilaId, setSelectedUpazilaId] = useState<number | null>(null)
+  const [selectedUpazilaName, setSelectedUpazilaName] = useState<string>('')
+  const [selectedUnionName, setSelectedUnionName] = useState<string>('')
+ 
   const router = useRouter()
 
-  const districts = [{label: 'Nilphamari', value: 'Nilphamari'}]
-  const upazilas = [{label: 'Dimla', value: 'Dimla'}]
-  const unions = [{label: 'Bala Para', value: 'Bala Para'}]
-  const userTypes = [{label: 'Donor', value: 'donor'}]
   const genders = [{label: 'Male', value: 'male'}, {label: 'Female', value: 'female'}, {label: 'Other', value: 'other'}]
   const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map(value => ({label: value, value}))
-  const donationStatus = [{label: 'Available', value: 'available'}, {label: 'Not Available', value: 'not_available'}]
+  const donationStatus = [{label: 'Available', value: 'available'}, {label: 'Not Available', value: 'not_available'},{lavel:'Not Sure', value:'not_sure'}]
+
+  const {data: locationData} = useQuery({
+    queryKey: ['location'],
+    queryFn: () => apiServices.getLocationByParentId(1),
+  })
+
+  useEffect(() => {
+    if(locationData?.data?.length > 0){
+      const upazilasData = locationData.data.map((item: any) => ({
+        label: item.name,
+        value: item.id
+      }));
+      setUpazilas(upazilasData);
+    }
+  }, [locationData])
+
+  const {data: unionData} = useQuery({
+    queryKey: ['union', selectedUpazilaId],
+    queryFn: () => {
+      if (selectedUpazilaId) {
+        return apiServices.getLocationByParentId(selectedUpazilaId)
+      }
+      return null
+    },
+    enabled: !!selectedUpazilaId
+  })
+
+  useEffect(() => {
+    if(unionData?.data?.length > 0){
+      const unionsData = unionData.data.map((item: any) => ({
+        label: item.name,
+        value: item.id
+      }));
+      setUnions(unionsData);
+    } else {
+      setUnions([]);
+    }
+  }, [unionData])
+
+  useEffect(() => {
+    if(formData.Upazila) {
+      setFormData(prev => ({...prev, Union: ''}));
+      setSelectedUnionName('');
+    }
+  }, [formData.Upazila])
 
   const pickImage = async (type: 'profilePicture' | 'nid') => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -70,24 +120,51 @@ const UserUpdate = () => {
     }
   }
 
-  const validate = () => {
-    const newErrors: ErrorType = {}
-    if (!formData.fullName) newErrors.fullName = 'Full name is required'
-    if (!formData.contact) newErrors.contact = 'Contact is required'
-    if (!formData.district) newErrors.district = 'District is required'
-    if (!formData.upazila) newErrors.upazila = 'Upazila is required'
-    if (!formData.union) newErrors.union = 'Union is required'
-    if (!formData.userType) newErrors.userType = 'User type is required'
-    if (!formData.gender) newErrors.gender = 'Gender is required'
-    if (!formData.bloodDonationStatus) newErrors.bloodDonationStatus = 'Blood donation status is required'
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleRegister = () => {
-    if (validate()) {
-      // Handle registration logic here
-      router.push('/(tabs)')
+  const handleUpdate = async () => {
+    setLoading(true)
+    try {
+      // Create FormData for image upload
+      const formDataObj = new FormData()
+      
+      // Add all text fields
+      Object.keys(formData).forEach(key => {
+        if (key !== 'profilePicture' && key !== 'nid') {
+          if (key === 'dateOfBirth' || key === 'lastDonationTime') {
+            formDataObj.append(key, formData[key].toISOString())
+          } else {
+            formDataObj.append(key, formData[key as keyof typeof formData])
+          }
+        }
+      })
+      
+      // Add image files if they exist
+      if (formData.profilePicture) {
+        const filename = formData.profilePicture.split('/').pop()
+        const match = /\.(\w+)$/.exec(filename || '')
+        const type = match ? `image/${match[1]}` : 'image'
+        
+        formDataObj.append('profilePicture', {
+          uri: formData.profilePicture,
+          name: filename,
+          type
+        } as any)
+      }
+      
+      if (formData.nid) {
+        const filename = formData.nid.split('/').pop()
+        const match = /\.(\w+)$/.exec(filename || '')
+        const type = match ? `image/${match[1]}` : 'image'
+        
+        formDataObj.append('nid', {
+          uri: formData.nid,
+          name: filename,
+          type
+        } as any)
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -97,16 +174,15 @@ const UserUpdate = () => {
     <View style={{flex: 1}}>
       <ScrollView>
         <ThemedView style={styles.formContainer}>
-          <ThemedText type='title' style={styles.title}>  Update Profile</ThemedText>
+          <ThemedText type='title' style={styles.title}>Update Profile</ThemedText>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Full Name *</Text>
+            <Text style={styles.label}>Full Name</Text>
             <TextInput
-              style={[styles.input, errors?.fullName && styles.errorInput]}
+              style={styles.input}
               placeholder="Enter your full name"
               value={formData.fullName}
               onChangeText={(text) => setFormData({...formData, fullName: text})}
             />
-            {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -130,7 +206,7 @@ const UserUpdate = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Date of Birth *</Text>
+            <Text style={styles.label}>Date of Birth</Text>
             <TouchableOpacity 
               style={styles.input}
               onPress={() => {
@@ -156,15 +232,14 @@ const UserUpdate = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Contact *</Text>
+            <Text style={styles.label}>Contact</Text>
             <TextInput
-              style={[styles.input, errors.contact && styles.errorInput]}
+              style={styles.input}
               placeholder="Enter contact number"
               value={formData.contact}
               onChangeText={(text) => setFormData({...formData, contact: text})}
               keyboardType="phone-pad"
             />
-            {errors.contact && <Text style={styles.errorText}>{errors.contact}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -191,63 +266,49 @@ const UserUpdate = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>District *</Text>
+            <Text style={styles.label}>District</Text>
             <Dropdown
-              data={districts}
+              data={[]}
               placeholder="Select District"
               labelField="label"
               valueField="value"
               value={formData.district}
-              onChange={item => setFormData({...formData, district: item.value})}
-              style={[styles.dropdown, errors.district && styles.errorInput]}
+              onChange={item => setFormData({...formData, district: item.value, Upazila: '', Union: ''})}
+              style={styles.dropdown}
             />
-            {errors.district && <Text style={styles.errorText}>{errors.district}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Upazila *</Text>
+            <Text style={styles.label}>Upazila</Text>
             <Dropdown
               data={upazilas}
               placeholder="Select Upazila"
               labelField="label"
               valueField="value"
-              value={formData.upazila}
-              onChange={item => setFormData({...formData, upazila: item.value})}
-              style={[styles.dropdown, errors.upazila && styles.errorInput]}
+              value={formData.Upazila}
+              onChange={item => setFormData({...formData, Upazila: item.value, Union: ''})}
+              style={styles.dropdown}
+              disable={!formData.district}
             />
-            {errors.upazila && <Text style={styles.errorText}>{errors.upazila}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Union *</Text>
+            <Text style={styles.label}>Union</Text>
             <Dropdown
               data={unions}
               placeholder="Select Union"
               labelField="label"
               valueField="value"
-              value={formData.union}
-              onChange={item => setFormData({...formData, union: item.value})}
-              style={[styles.dropdown, errors.union && styles.errorInput]}
+              value={formData.Union}
+              onChange={item => setFormData({...formData, Union: item.value})}
+              style={styles.dropdown}
+              disable={!formData.Upazila}
             />
-            {errors.union && <Text style={styles.errorText}>{errors.union}</Text>}
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>User Type *</Text>
-            <Dropdown
-              data={userTypes}
-              placeholder="Select User Type"
-              labelField="label"
-              valueField="value"
-              value={formData.userType}
-              onChange={item => setFormData({...formData, userType: item.value})}
-              style={[styles.dropdown, errors.userType && styles.errorInput]}
-            />
-            {errors.userType && <Text style={styles.errorText}>{errors.userType}</Text>}
-          </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Blood Donation Status *</Text>
+            <Text style={styles.label}>Blood Donation Status</Text>
             <Dropdown
               data={donationStatus}
               placeholder="Select Status"
@@ -255,13 +316,12 @@ const UserUpdate = () => {
               valueField="value"
               value={formData.bloodDonationStatus}
               onChange={item => setFormData({...formData, bloodDonationStatus: item.value})}
-              style={[styles.dropdown, errors.bloodDonationStatus && styles.errorInput]}
+              style={styles.dropdown}
             />
-            {errors.bloodDonationStatus && <Text style={styles.errorText}>{errors.bloodDonationStatus}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Gender *</Text>
+            <Text style={styles.label}>Gender</Text>
             <Dropdown
               data={genders}
               placeholder="Select Gender"
@@ -269,9 +329,8 @@ const UserUpdate = () => {
               valueField="value"
               value={formData.gender}
               onChange={item => setFormData({...formData, gender: item.value})}
-              style={[styles.dropdown, errors.gender && styles.errorInput]}
+              style={styles.dropdown}
             />
-            {errors.gender && <Text style={styles.errorText}>{errors.gender}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -326,13 +385,12 @@ const UserUpdate = () => {
           </View>
 
           <TouchableOpacity 
-            style={styles.registerButton}
-            onPress={handleRegister}
+            style={[styles.registerButton, loading && styles.disabledButton]}
+            onPress={handleUpdate}
+            disabled={loading}
           >
-            <Text style={styles.registerButtonText}>Submit</Text>
+            <Text style={styles.registerButtonText}>{loading ? 'Updating...' : 'Update Profile'}</Text>
           </TouchableOpacity>
-
-          
         </ThemedView>
       </ScrollView>
 
@@ -386,14 +444,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: 'white',
   },
-  errorInput: {
-    borderColor: 'red',
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 12,
-    marginTop: 5,
-  },
   dropdown: {
     height: 50,
     backgroundColor: 'white',
@@ -423,6 +473,9 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     marginTop: 20,
+  },
+  disabledButton: {
+    backgroundColor: '#cccccc',
   },
   registerButtonText: {
     color: '#fff',

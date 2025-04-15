@@ -95,7 +95,7 @@ const UserCard = ({ user }: { user: any }) => {
         </ThemedText>
         <ThemedText style={styles.infoText}>
           Physical Complexity:{" "}
-          {user?.physicalComplexity === false ? "No" : "Yes"}
+          {user?.physicalComplexity ? user?.physicalComplexity : "No"}
         </ThemedText>
         <ThemedText 
           style={[

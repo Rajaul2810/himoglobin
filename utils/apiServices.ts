@@ -504,8 +504,13 @@ const deleteNews = async (id: any) => {
 
   ///api/user/donorRegistration
   const donorRegistration = async (data: any) => {
+    console.log('data', data);
     try {
-      const response = await api.post(`/user/donorRegistration`, data);
+      const response = await api.post(`/user/donorRegistration`, data ,{
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return response.data;
     } catch (error: any) {
       throw error;
@@ -522,13 +527,27 @@ const deleteNews = async (id: any) => {
         return []
       }
       throw error;
+      
+    }
+
+  }
+  ///api/user/update
+  const updateUser = async (data: any) => {
+    try {
+      const response = await api.put(`/user/update`, data);
+      return response.data;
+    } catch (error: any) {
+      throw error;
     }
   }
+
+
   export default { 
     register,
     getLocationByParentId,
     getUserType,
     getToken,
+    updateUser,
     getBloodBankData,
     createCampaign,
     getAllCampaign,

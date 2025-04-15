@@ -235,8 +235,11 @@ const RegisterPage = () => {
       return apiServices.register(formDataToSend);
     },
     onSuccess: (data) => {
-      Alert.alert('Success', 'Registration successful!');
-      router.push('/auth/login');
+      if(data?.data?.isSuccess){
+        Alert.alert('Success', 'Registration successful!');
+      }else{
+        Alert.alert('Error', data?.data?.message);
+      }
     },
     onError: (error) => {
       console.log(error);

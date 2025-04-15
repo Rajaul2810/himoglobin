@@ -90,7 +90,10 @@ const PermittedCampaign = () => {
                   </View>
                 </View>
                 <View style={styles.actionContainer}>
-                    <TouchableOpacity onPress={() => router.push({pathname: '/volunteers/add-donor', params: {id: item.id}})} style={styles.actionButton}>
+                    <TouchableOpacity onPress={() => router.push({pathname: '/admin/manage-media', params: {id: item.id}})} style={styles.actionButton}>
+                        <Text style={styles.actionButtonText}>Media</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => router.push({pathname: '/volunteers/add-donor', params: {id: item.id}})} style={styles.actionButton2}>
                         <Text style={styles.actionButtonText}>Add Donor</Text>
                     </TouchableOpacity>
                 </View>
@@ -190,10 +193,19 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   actionContainer: {
-    width: '100%',
+    flexDirection: 'row',
+    gap: 10,
+    flex: 1,
   },
   actionButton: {   
     backgroundColor: 'green',
+    flex: 1,
+    padding: 5,
+    borderRadius: 5,
+  },
+  actionButton2: {   
+    backgroundColor: 'blue',
+    flex: 1,
     padding: 5,
     borderRadius: 5,
   },
