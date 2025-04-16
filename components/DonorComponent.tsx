@@ -22,7 +22,7 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useMutation } from "@tanstack/react-query";
-import apiServices from "@/utils/apiServices";
+import apiServices, { BACKEND_URL } from "@/utils/apiServices";
 import { lastBloodDonation } from "@/utils/lastBloodDonation";
 import useAuthStore from "@/store/authStore";
 import { useRouter } from "expo-router";
@@ -169,8 +169,7 @@ const DonorComponent = () => {
                         item?.imageUrl
                           ? {
                               uri:
-                                "https://mehrabmahi21-001-site1.qtempurl.com/" +
-                                item?.imageUrl,
+                                `${BACKEND_URL}/${item?.imageUrl}`,
                             }
                           : require("@/assets/images/user.jpg")
                       }

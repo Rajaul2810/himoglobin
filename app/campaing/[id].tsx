@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, useColorScheme, Dimensions, SafeAreaView } from 'react-native'
 import React from 'react'
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
-import apiServices from '@/utils/apiServices';
+import apiServices, { BACKEND_URL } from '@/utils/apiServices';
 import { useQuery } from '@tanstack/react-query';
 import LoadingComponent from '@/components/utilsComponent/Loading';
 import ErrorComponent from '@/components/utilsComponent/Error';
@@ -43,7 +43,7 @@ const CampaignDetails = () => {
                 {/* Banner Image */}
                 <View style={styles.bannerContainer}>
                     <Image 
-                        source={{ uri: `https://mehrabmahi21-001-site1.qtempurl.com/${campaignData?.bannerUrl}` }} 
+                        source={{ uri: `${BACKEND_URL}/${campaignData?.bannerUrl}` }} 
                         style={styles.bannerImage}
                         resizeMode="cover"
                     />

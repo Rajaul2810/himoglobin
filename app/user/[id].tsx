@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Share, Ale
 import React from 'react'
 import { useLocalSearchParams, Stack } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import apiServices from '@/utils/apiServices';
+import apiServices, { BACKEND_URL } from '@/utils/apiServices';
 import LoadingComponent from '@/components/utilsComponent/Loading';
 import ErrorComponent from '@/components/utilsComponent/Error';
 
@@ -36,7 +36,7 @@ const UserDetails = () => {
           <View style={styles.header}>
             <View style={styles.profileImageContainer}>
               {userData?.imageUrl ? (
-                <Image source={{ uri: "https://mehrabmahi21-001-site1.qtempurl.com/" + userData.imageUrl }} style={styles.profileImage} />
+                <Image source={{ uri: `${BACKEND_URL}/${userData.imageUrl}` }} style={styles.profileImage} />
               ) : (
                 <View style={[styles.profileImage, styles.noImage]}>
                   <Text style={styles.profileInitial}>{userData?.fullName?.[0] || 'U'}</Text>

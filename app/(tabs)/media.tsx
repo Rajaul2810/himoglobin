@@ -13,7 +13,7 @@ import {
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
-import apiServices from "@/utils/apiServices";
+import apiServices, { BACKEND_URL } from "@/utils/apiServices";
 import LoadingComponent from "@/components/utilsComponent/Loading";
 import ErrorComponent from "@/components/utilsComponent/Error";
 import { ThemedView } from "@/components/ThemedView";
@@ -97,7 +97,7 @@ const Media = () => {
           <Image
             source={
               item
-                ? { uri: `https://mehrabmahi21-001-site1.qtempurl.com/${item}` }
+                ? { uri: `${BACKEND_URL}/${item}` }
                 : require("@/assets/images/donation.jpg")
             }
             style={styles.mediaImage}

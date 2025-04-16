@@ -1,8 +1,10 @@
 import useAuthStore from '@/store/authStore';
 import axios from 'axios';
 
+export const BACKEND_URL = 'https://hemoglobin-nil.com'
+
 const api = axios.create({
-    baseURL: 'https://mehrabmahi21-001-site1.qtempurl.com/api',
+    baseURL: 'https://hemoglobin-nil.com/api',
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
@@ -534,7 +536,11 @@ const deleteNews = async (id: any) => {
   ///api/user/update
   const updateUser = async (data: any) => {
     try {
-      const response = await api.put(`/user/update`, data);
+      const response = await api.put(`/user/update`, data ,{
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return response.data;
     } catch (error: any) {
       throw error;

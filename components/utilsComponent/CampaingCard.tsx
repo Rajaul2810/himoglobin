@@ -5,12 +5,12 @@ import { ThemedText } from "@/components/ThemedText";
 import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
-
+import apiServices, { BACKEND_URL } from "@/utils/apiServices";
 const CampaingCard = ({ item }: { item: any }) => {
   return (
     <TouchableOpacity activeOpacity={0.7} onPress={() => router.push({pathname: "/campaing/[id]", params: {id: item?.id}})}> 
       <ThemedView style={styles.container}>
-      <Image source={{ uri: `https://mehrabmahi21-001-site1.qtempurl.com/${item?.bannerUrl}` }} resizeMode="stretch" style={styles.bannerImage} />
+      <Image source={{ uri: `${BACKEND_URL}/${item?.bannerUrl}` }} resizeMode="stretch" style={styles.bannerImage} />
       <ThemedView style={styles.contentContainer}>
         <ThemedText style={styles.title}>{item.name}</ThemedText>
 

@@ -3,6 +3,7 @@ import React from "react";
 import { ThemedView } from "../ThemedView";
 import { ThemedText } from "../ThemedText";
 import { useRouter } from "expo-router";
+import apiServices, { BACKEND_URL } from "@/utils/apiServices";
 interface Campaign {
   id: string;
   name: string;
@@ -28,7 +29,7 @@ const AdminCampaingCard = ({ item, onEdit, onDelete }: AdminCampaingCardProps) =
       <ThemedView style={styles.container}>
         <View style={styles.content}>
           <Image 
-            source={{ uri: 'https://mehrabmahi21-001-site1.qtempurl.com/' + item.bannerUrl }} 
+            source={{ uri: `${BACKEND_URL}/${item.bannerUrl}` }} 
             style={styles.image} 
           />
           <View style={{width: '65%'}}>

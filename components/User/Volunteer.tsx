@@ -10,7 +10,7 @@ import {
   ImageBackground,
 } from "react-native";
 import React from "react";
-import apiServices from "@/utils/apiServices";
+import apiServices, { BACKEND_URL } from "@/utils/apiServices";
 import { useQuery } from "@tanstack/react-query";
 import LoadingComponent from "../utilsComponent/Loading";
 import ErrorComponent from "../utilsComponent/Error";
@@ -116,8 +116,7 @@ const Volunteer = () => {
                   item?.imageUrl
                     ? {
                         uri:
-                          "https://mehrabmahi21-001-site1.qtempurl.com/" +
-                          item?.imageUrl,
+                          `${BACKEND_URL}/${item?.imageUrl}`,
                       }
                     : require("@/assets/images/user.jpg")
                 }

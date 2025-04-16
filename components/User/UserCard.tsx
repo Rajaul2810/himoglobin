@@ -17,7 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import useAuthStore from "@/store/authStore";
 import { lastBloodDonation } from "@/utils/lastBloodDonation";
-
+import apiServices, { BACKEND_URL } from "@/utils/apiServices";
 const UserCard = ({ user }: { user: any }) => {
   const colorScheme = useColorScheme();
   const router = useRouter();
@@ -64,8 +64,7 @@ const UserCard = ({ user }: { user: any }) => {
                 user?.imageUrl
                   ? {
                       uri:
-                        "https://mehrabmahi21-001-site1.qtempurl.com/" +
-                        user?.imageUrl,
+                        `${BACKEND_URL}/${user?.imageUrl}`,
                     }
                   : require("@/assets/images/user.jpg")
               }

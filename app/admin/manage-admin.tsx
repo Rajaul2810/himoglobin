@@ -10,7 +10,7 @@ import {
 } from 'react-native'
 import React, { useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import apiServices from '@/utils/apiServices'
+import apiServices, { BACKEND_URL } from '@/utils/apiServices'
 import { Stack, useRouter } from 'expo-router'
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
@@ -76,8 +76,7 @@ const ManageAdmin = () => {
                       item?.imageUrl
                         ? {
                             uri:
-                              "https://mehrabmahi21-001-site1.qtempurl.com/" +
-                              item?.imageUrl,
+                              `${BACKEND_URL}/${item?.imageUrl}`,
                           }
                         : require("@/assets/images/user.jpg")
                     }

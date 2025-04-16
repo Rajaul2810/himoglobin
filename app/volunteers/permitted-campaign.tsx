@@ -12,7 +12,7 @@ import {
 import React, { useState } from 'react'
 import { Stack, useRouter } from 'expo-router'
 import { useQuery } from '@tanstack/react-query'
-import apiServices from '@/utils/apiServices'
+import apiServices, { BACKEND_URL } from '@/utils/apiServices'
 import LoadingComponent from '@/components/utilsComponent/Loading'
 import ErrorComponent from '@/components/utilsComponent/Error'
 import { ThemedText } from '@/components/ThemedText'
@@ -75,7 +75,7 @@ const PermittedCampaign = () => {
               <ThemedView style={styles.card}>
                 <View style={styles.content}>
                   <Image
-                    source={{ uri: 'https://mehrabmahi21-001-site1.qtempurl.com/' + item.bannerUrl }} 
+                    source={{ uri: `${BACKEND_URL}/${item.bannerUrl}` }} 
                     style={styles.image} 
                   />
                   <View style={{width: '65%'}}>

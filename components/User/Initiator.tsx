@@ -5,7 +5,7 @@ import { ThemedView } from '../ThemedView'
 import { ThemedText } from '../ThemedText'
 import { Colors } from '@/constants/Colors'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
-import apiServices from '@/utils/apiServices'
+import apiServices, { BACKEND_URL } from '@/utils/apiServices'
 import { useQuery } from '@tanstack/react-query'
 import LoadingComponent from '../utilsComponent/Loading'
 import ErrorComponent from '../utilsComponent/Error'
@@ -44,7 +44,7 @@ const Initiator = () => {
         <ThemedView style={[styles.initiatorCard, {borderColor:  isDark ? Colors.dark.border : Colors.light.border, backgroundColor: isDark ? Colors.dark.background : 'lightgray'}]}>
             <View style={styles.imageContainer}>
               {item.imageUrl ? (
-                <Image source={{uri: 'https://mehrabmahi21-001-site1.qtempurl.com/'+item.imageUrl}} style={styles.image} />
+                <Image source={{uri: `${BACKEND_URL}/${item.imageUrl}`}} style={styles.image} />
               ) : (
                 <Image source={require('@/assets/images/user.jpg')} style={styles.image} />
               )}
@@ -74,7 +74,7 @@ const Initiator = () => {
         <ThemedView style={[styles.initiatorCard, {borderColor:  isDark ? Colors.dark.border : Colors.light.border, backgroundColor: isDark ? Colors.dark.background : 'lightgray'}]}>
             <View style={styles.imageContainer}>
             {item.imageUrl ? (
-                <Image source={{uri: 'https://mehrabmahi21-001-site1.qtempurl.com/'+item.imageUrl}} style={styles.image} />
+                <Image source={{uri: `${BACKEND_URL}/${item.imageUrl}`}} style={styles.image} />
               ) : (
                 <Image source={require('@/assets/images/user.jpg')} style={styles.image} />
               )}

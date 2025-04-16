@@ -13,7 +13,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import apiServices from "@/utils/apiServices";
+import apiServices, { BACKEND_URL } from "@/utils/apiServices";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import LoadingComponent from "@/components/utilsComponent/Loading";
 import ErrorComponent from "@/components/utilsComponent/Error";
@@ -245,8 +245,7 @@ const ManageVolunteer = () => {
                       item?.imageUrl
                         ? {
                             uri:
-                              "https://mehrabmahi21-001-site1.qtempurl.com/" +
-                              item?.imageUrl,
+                              `${BACKEND_URL}/${item?.imageUrl}`,
                           }
                         : require("@/assets/images/user.jpg")
                     }

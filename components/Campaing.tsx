@@ -12,7 +12,7 @@ import React from "react";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
-import apiServices from "@/utils/apiServices";
+import apiServices, { BACKEND_URL } from "@/utils/apiServices";
 import { useQuery } from "@tanstack/react-query";
 import LoadingComponent from "./utilsComponent/Loading";
 import ErrorComponent from "./utilsComponent/Error";
@@ -76,7 +76,7 @@ const Campaing = () => {
                 </View>
                 
                 <Image 
-                  source={{uri: `https://mehrabmahi21-001-site1.qtempurl.com/${item?.bannerUrl}`}} 
+                  source={{uri: `${BACKEND_URL}/${item?.bannerUrl}`}} 
                   resizeMode="cover" 
                   style={styles.campaingImage} 
                 />

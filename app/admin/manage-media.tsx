@@ -9,7 +9,7 @@ import { Colors } from '@/constants/Colors'
 import { Dropdown } from 'react-native-element-dropdown'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import apiServices from '@/utils/apiServices'
+import apiServices, { BACKEND_URL } from '@/utils/apiServices'
 import * as ImagePicker from 'expo-image-picker'
 import { Stack } from 'expo-router'
 interface Media {
@@ -203,7 +203,7 @@ const ManageMedia = () => {
           <ThemedView style={styles.mediaCard}>
             <View style={styles.mediaContent}>
               <Image 
-                source={{uri: `https://mehrabmahi21-001-site1.qtempurl.com/${item.imageUrl}`}} 
+                source={{uri: `${BACKEND_URL}/${item.imageUrl}`}} 
                 style={styles.mediaImage}
                 resizeMode="cover"
               />
